@@ -1,0 +1,164 @@
+{
+    "version": "v0.1",
+    "platform": "PLATFORM",
+    "leds": [
+        {
+            "name": "internet",
+            "states": [
+                {
+                    "name": "WAN_LINK_DOWN",
+                    "led_mode": "LED_OFF",
+                    "transitions": [
+                        {
+                            "event": "rdkb_dsl_training",
+                            "next_state": "DSL_TRAINING"
+                        },
+                        {
+                            "event": "rdkb_wan_link_up",
+                            "next_state": "WAN_LINK_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "DSL_TRAINING",
+                    "led_mode": "LED_FLASHING_AMBER",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_wan_link_up",
+                            "next_state": "WAN_LINK_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "WAN_LINK_UP",
+                    "led_mode": "LED_AMBER",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_ipv4_up",
+                            "next_state": "WAN_IPV4_UP"
+                        },
+                        {
+                            "event": "rdkb_ipv6_up",
+                            "next_state": "WAN_IPV6_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "WAN_IPV4_UP",
+                    "led_mode": "LED_AMBER",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_ipv4_down",
+                            "next_state": "WAN_LINK_UP"
+                        },
+                        {
+                            "event": "rdkb_ipv6_up",
+                            "next_state": "WAN_DUAL_STACK_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "WAN_IPV6_UP",
+                    "led_mode": "LED_FLASHING_GREEN",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_ipv6_down",
+                            "next_state": "WAN_LINK_UP"
+                        },
+                        {
+                            "event": "rdkb_ipv4_up",
+                            "next_state": "WAN_DUAL_STACK_UP"
+                        },
+                        {
+                            "event": "rdkb_mapt_up",
+                            "next_state": "WAN_MAPT_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "WAN_DUAL_STACK_UP",
+                    "led_mode": "LED_GREEN",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_ipv4_down",
+                            "next_state": "WAN_IPV6_UP"
+                        },
+                        {
+                            "event": "rdkb_ipv6_down",
+                            "next_state": "WAN_IPV4_UP"
+                        },
+                        {
+                            "event": "rdkb_mapt_down",
+                            "next_state": "WAN_IPV6_UP"
+                        }
+                    ]
+                },
+                {
+                    "name": "WAN_MAPT_UP",
+                    "led_mode": "LED_GREEN",
+                    "transitions": [
+                        {
+                            "event": "rdkb_wan_link_down",
+                            "next_state": "WAN_LINK_DOWN"
+                        },
+                        {
+                            "event": "rdkb_ipv4_down",
+                            "next_state": "WAN_IPV6_UP"
+                        },
+                        {
+                            "event": "rdkb_ipv6_down",
+                            "next_state": "WAN_IPV4_UP"
+                        },
+                        {
+                            "event": "rdkb_mapt_down",
+                            "next_state": "WAN_IPV6_UP"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "led_modes": [
+        {
+            "name": "LED_OFF",
+            "command": "off"
+        },
+        {
+            "name": "LED_FLASHING_AMBER",
+            "command": "blinking_amber"
+        },
+        {
+            "name": "LED_FLASHING_GREEN",
+            "command": "blinking_green"
+        },
+        {
+            "name": "LED_AMBER",
+            "command": "solid_amber"
+        },
+        {
+            "name": "LED_GREEN",
+            "command": "solid_green"
+        }
+    ]
+}
+
