@@ -50,6 +50,7 @@ cpe_led_events_t led_events[] =
 {    eFwUpdateStart,    "rdkb_fwupdate_start"    },
 {    eFwUpdateStop,     "rdkb_fwupdate_stop"     },
 {    eFwUpdateComplete, "rdkb_fwupdate_complete" },
+{    eFwUpdateReset,    "rdkb_fwupdate_reset" },
 {    eVoiceProvisioned, "rdkb_voice_provisioned" },
 {    eVoiceUp,          "rdkb_voice_up"          },
 {    eVoiceRinging,     "rdkb_voice_ringing"     },
