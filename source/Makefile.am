@@ -32,5 +32,5 @@ rdkledmanager_DEPENDENCIES = \
 
 rdkledmanager_CFLAGS = -Werror -D_ANSC_LINUX -D_ANSC_USER -D_ANSC_LITTLE_ENDIAN_ -DFEATURE_SUPPORT_RDKLOG $(DBUS_CFLAGS) $(SYSTEMD_CFLAGS)
 rdkledmanager_SOURCES = led_manager.c led_manager_events.c led_manager_utils.c led_manager_dbus_utils.c
-rdkledmanager_LDFLAGS = -lccsp_common -lrdkloggers -ljson-c $(DBUS_LIBS) $(SYSTEMD_LDFLAGS) -lsysevent -lhal_platform -lledmanager -lsky_hub
+rdkledmanager_LDFLAGS = -lccsp_common -lrdkloggers -ljson-c $(DBUS_LIBS) $(SYSTEMD_LDFLAGS) -lsysevent -lhal_platform -lledmanager -lsky_hub -lsyscfg
 rdkledmanager_LDADD =  $(rdkledmanager_DEPENDENCIES)
