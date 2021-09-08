@@ -36,7 +36,7 @@
 #ifndef _LEDMGR_DEFN_H_
 #define _LEDMGR_DEFN_H_
 
-#define OBJ_NAME_LEN                 64
+#define OBJ_NAME_LEN                 128
 
 typedef struct led_hal_command_t
 {

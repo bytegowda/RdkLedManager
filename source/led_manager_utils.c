@@ -22,7 +22,6 @@
 #include "led_manager_global.h"
 #include "ccsp_psm_helper.h"
 
-#define OBJ_NAME_LEN                 64
 #define LED_MODES_JSON_KEY           "led_modes"
 #define LED_MODE_JSON_KEY            "led_mode"
 #define LED_JSON_KEY                 "leds"
