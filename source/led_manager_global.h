@@ -42,7 +42,6 @@
 #include "slap_definitions.h"
 #include "cosa_plugin_api.h"
 #include "ccsp_dm_api.h"
-#include "ccsp_custom_logs.h"
 
 #ifndef WIN32
 #include "ccsp_message_bus.h"
