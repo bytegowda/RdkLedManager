@@ -45,7 +45,6 @@
 #include <pthread.h>
 #include "ccsp_trace.h"
 #include "platform_hal.h"
-#include "syscfg/syscfg.h"
 
 #define COMPONENT_NAME_LEDMANAGER    "com.cisco.spvtg.ccsp.ledmanager"
 #define COMPONENT_PATH_LEDMANAGER    "/com/cisco/spvtg/ccsp/ledmanager"
