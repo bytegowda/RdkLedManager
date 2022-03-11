@@ -63,6 +63,13 @@ cpe_led_events_t led_events[] =
 {    eWpsOverlap,       "rdkb_wps_overlap"       },
 {    eWpsTimeout,       "rdkb_wps_timeout"       },
 {    eWpsStop,          "rdkb_wps_stop"          },
+{    eWpsClientConnected, "rdkb_wps_client_connected" },
+{    eWpsWlanHoldStart, "rdkb_wps_wlan_hold_start" },
+{    eWpsWlanHoldStop,  "rdkb_wps_wlan_hold_stop" },
+{    eWpsFrHoldStart,   "rdkb_wps_fr_hold_start" },
+{    eWpsFrHoldStop,    "rdkb_wps_fr_hold_stop"  },
+{    eFwDownloadStart,  "rdkb_fwdownload_start"    },
+{    eFwDownloadStop,   "rdkb_fwdownload_stop"    },
 {    MAX_EVENTS,        ""                       }
 };
 

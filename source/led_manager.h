@@ -98,6 +98,13 @@ eWpsStart,
 eWpsOverlap,
 eWpsTimeout,
 eWpsStop,
+eWpsClientConnected,
+eWpsWlanHoldStart,
+eWpsWlanHoldStop,
+eWpsFrHoldStart,
+eWpsFrHoldStop,
+eFwDownloadStart,
+eFwDownloadStop,
 eTimeOut,
 MAX_EVENTS
 }cpe_event_t;
