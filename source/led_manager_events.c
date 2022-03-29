@@ -70,6 +70,7 @@ cpe_led_events_t led_events[] =
 {    eWpsFrHoldStop,    "rdkb_wps_fr_hold_stop"  },
 {    eFwDownloadStart,  "rdkb_fwdownload_start"    },
 {    eFwDownloadStop,   "rdkb_fwdownload_stop"    },
+{    eWanEstablish,   "rdkb_wan_establish"    },
 {    MAX_EVENTS,        ""                       }
 };
 

@@ -105,6 +105,7 @@ eWpsFrHoldStart,
 eWpsFrHoldStop,
 eFwDownloadStart,
 eFwDownloadStop,
+eWanEstablish,
 eTimeOut,
 MAX_EVENTS
 }cpe_event_t;
