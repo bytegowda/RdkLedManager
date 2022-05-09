@@ -74,8 +74,8 @@ cpe_led_events_t led_events[] =
 {    MAX_EVENTS,        ""                       }
 };
 
-led_data_t g_led_data;
-led_mode_data_t g_mode_data;
+extern led_data_t g_led_data;
+extern led_mode_data_t g_mode_data;
 
 cpe_event_t ledmgr_get_event_from_str (char * event_str);
 
