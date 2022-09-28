@@ -134,10 +134,20 @@ int main(int argc, char* argv[])
     appcaps.caps = NULL;
     appcaps.user_name = NULL;
 
-    init_capability();
-    drop_root_caps(&appcaps);
-    update_process_caps(&appcaps);
-    read_capability(&appcaps);
+    bool blocklist_ret = false;
+    blocklist_ret = isBlocklisted();
+    if(blocklist_ret)
+    {
+        CcspTraceInfo(("NonRoot feature is disabled\n"));
+    }
+    else
+    {
+        CcspTraceInfo(("NonRoot feature is enabled, dropping root privileges for RdkInterDeviceManager Process\n"));
+        init_capability();
+        drop_root_caps(&appcaps);
+        update_process_caps(&appcaps);
+        read_capability(&appcaps);
+    }
 
     for(idx = 1; idx < argc; idx++)
     {
