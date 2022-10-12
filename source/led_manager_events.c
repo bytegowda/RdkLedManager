@@ -71,6 +71,7 @@ cpe_led_events_t led_events[] =
 {    eFwDownloadStart,  "rdkb_fwdownload_start"    },
 {    eFwDownloadStop,   "rdkb_fwdownload_stop"    },
 {    eWanEstablish,   "rdkb_wan_establish"    },
+{    eFactoryReset,   "rdkb_factory_reset"    },
 {    MAX_EVENTS,        ""                       }
 };
 
