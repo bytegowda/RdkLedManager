@@ -72,6 +72,14 @@ cpe_led_events_t led_events[] =
 {    eFwDownloadStop,   "rdkb_fwdownload_stop"    },
 {    eWanEstablish,   "rdkb_wan_establish"    },
 {    eFactoryReset,   "rdkb_factory_reset"    },
+{    eExtConnected,      "ext_connected"         },
+{    eExtConnecting,     "ext_connecting"        },
+{    eExtFail,           "ext_fail"              },
+{    eExtDisconnected,   "ext_disconnected"      },
+{    eGfoEnabled,        "gfo_enabled"           },
+{    eGfoDisabled,       "gfo_disabled"          },
+{    eWfoEnabled,        "wfo_enabled"           },
+{    eWfoDisabled,       "wfo_disabled"          },
 {    MAX_EVENTS,        ""                       }
 };
 

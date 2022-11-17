@@ -108,6 +108,14 @@ eFwDownloadStop,
 eWanEstablish,
 eFactoryReset,
 eTimeOut,
+eExtConnected,
+eExtConnecting,
+eExtFail,
+eExtDisconnected,
+eGfoEnabled,
+eGfoDisabled,
+eWfoEnabled,
+eWfoDisabled,
 MAX_EVENTS
 }cpe_event_t;
 
