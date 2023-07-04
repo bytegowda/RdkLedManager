@@ -115,7 +115,7 @@ static int handle_event(cpe_event_t event)
         if (state == NULL)
             continue;   // check remaining LEDs
 
-        CcspTraceDebug(("\n\nfor LED %s with current state %s..\n", led_data_arr[i].name, state->name));
+        CcspTraceInfo(("\n\nfor LED %s with current state %s..\n", led_data_arr[i].name, state->name));
         transitions = state->transitions_list;
         no_of_transitions = state->no_of_transitions;
         for (j = 0; j < no_of_transitions; j++)
@@ -220,7 +220,7 @@ int ledmgr_catch_events()
                 }
                 if (handle_event(t_event) != SUCCESS)
                 {
-                    CcspTraceError(("%s %d: failed to handle event\n" ,__FUNCTION__, __LINE__));
+                    CcspTraceInfo(("%s %d: failed to handle event\n" ,__FUNCTION__, __LINE__));
                 }
             }
             else
