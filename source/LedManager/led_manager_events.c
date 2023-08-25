@@ -136,6 +136,7 @@ static int handle_event(cpe_event_t event)
                 led_data.led_name = led_data_arr[i].name;
                 led_data.led_param = cmd->cmd;
                 CcspTraceInfo(("HAL command: LED Name: %s Colour LED Param :%s \n", led_data_arr[i].name, cmd->cmd));
+                CcspTraceInfo(("Setting LED...\n"));
                 if (platform_hal_setLed (&led_data) != SUCCESS)
                 {
                     CcspTraceError(("HAL command failed for LED Name: %s cmd: %s \n", led_data_arr[i].name, cmd->cmd));

@@ -72,6 +72,20 @@ AM_CONDITIONAL(CCSP_ARCH_ARM, test "x$CCSP_ARCH" = xarm)
 AM_CONDITIONAL(CCSP_ARCH_ATOM, test "x$CCSP_ARCH" = xatom)
 AM_CONDITIONAL(CCSP_ARCH_PC, test "x$CCSP_ARCH" = xpc)
 AM_CONDITIONAL(CCSP_ARCH_MIPS, test "x$CCSP_ARCH" = xmips)
+FEATURE_LEDMGR_WEBCONFIG=no
+AC_ARG_ENABLE([webconfigled],
+        AS_HELP_STRING([--enable-webconfigled],[enable webconfigled]),
+        [
+          case "${enableval}" in
+           yes) FEATURE_LEDMGR_WEBCONFIG=yes ;;
+           no) AC_MSG_ERROR([FEATURE_LEDMGR_WEBCONFIG is disabled]) ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-webconfigled ]) ;;
+           esac
+           ],
+         [echo "FEATURE_LEDMGR_WEBCONFIG is disabled."])
+
+AM_CONDITIONAL([FEATURE_LEDMGR_WEBCONFIG], [test $FEATURE_LEDMGR_WEBCONFIG = yes])
+
 
 # Specify ccsp platform (device)
 
@@ -139,9 +153,9 @@ AC_SUBST(SYSTEMD_CFLAGS)
 AC_SUBST(SYSTEMD_LDFLAGS)
 AC_SUBST(NONROOT_CFLAGS)
 
-AC_CONFIG_FILES(
-    source/Makefile
-    Makefile
-)
-
+AC_CONFIG_FILES([Makefile
+		source/Makefile
+		source/TR-181/Makefile
+		source/TR-181/middle_layer_src/Makefile
+		source/LedManager/Makefile])
 AC_OUTPUT

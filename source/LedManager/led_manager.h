@@ -36,6 +36,9 @@
 #ifndef _LEDMGR_H_
 #define _LEDMGR_H_
 
+#ifdef LEDMGR_WEBCONFIG
+#include "ledmgr_webconfig.h"
+#else
 #include <stdio.h>
 #include <string.h>
 #include <json-c/json.h>
@@ -45,6 +48,7 @@
 #include <pthread.h>
 #include "ccsp_trace.h"
 #include "platform_hal.h"
+#endif
 
 #define COMPONENT_NAME_LEDMANAGER    "com.cisco.spvtg.ccsp.ledmanager"
 #define COMPONENT_PATH_LEDMANAGER    "/com/cisco/spvtg/ccsp/ledmanager"

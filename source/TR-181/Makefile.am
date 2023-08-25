@@ -16,10 +16,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-SUBDIRS =
 
-if FEATURE_LEDMGR_WEBCONFIG
-SUBDIRS += TR-181
-endif
-
-SUBDIRS += LedManager
+SUBDIRS = middle_layer_src

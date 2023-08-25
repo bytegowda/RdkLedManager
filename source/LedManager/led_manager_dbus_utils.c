@@ -262,7 +262,6 @@ ssp_Mbi_Initialize
     return ( returnStatus == ANSC_STATUS_SUCCESS ) ? 0 : 1;
 }
 
-
 int
 ssp_Mbi_Finalize
     (
@@ -275,7 +274,6 @@ ssp_Mbi_Finalize
 
     return ( returnStatus == ANSC_STATUS_SUCCESS ) ? 0 : 1;
 }
-
 
 int
 ssp_Mbi_Buscheck
@@ -403,10 +401,8 @@ ssp_Mbi_MessageBusEngage(char* component_id, char* config_file, char* path)
 
 }
 
-
 int cmd_dispatch(int  command)
 {
-
     switch ( command )
     {
         case    'e' :
@@ -463,7 +459,6 @@ void daemonize(void)
         case 0:
             break;
         case -1:
-            // Error
             CcspTraceInfo(("Error daemonizing (fork)! %d - %s\n", errno, strerror(
                             errno)));
             exit(0);

@@ -33,21 +33,33 @@
  */
 
 #include "led_manager.h"
-#include "led_manager_global.h"
 #include "led_manager_utils.h"
 #include "led_manager_events.h"
 #include "led_manager_dbus_utils.h"
 #include "breakpad_wrapper.h"
 #include "cap.h"
+#ifdef LEDMGR_WEBCONFIG
+#include "ledmgr_webconfig.h"
+#include "ledmgr_rbus_handler_apis.h"
+#else
+#include "led_manager_global.h"
+#endif
 
-#define DEBUG_INI_NAME    "/etc/debug.ini"
-
+#define DEBUG_INI_NAME "/etc/debug.ini"
 extern char * pComponentName;
+
+#ifndef LEDMGR_WEBCONFIG
 extern ANSC_HANDLE bus_handle;
 extern char g_Subsystem[32];
+#endif
+
 extern PCOMPONENT_COMMON_LED_MANAGER g_pComponentCommonLedMgr;
 cap_user appcaps;
 
+#ifdef LEDMGR_WEBCONFIG
+char conf_filepath[BUFLEN_128];
+ANSC_STATUS retStatus = ANSC_STATUS_FAILURE;
+#endif
 
 static void ledmgr_start ()
 {
@@ -68,6 +80,16 @@ static void ledmgr_start ()
         fclose(fd);
     }
 
+    FILE *config_file = NULL;
+#ifdef LEDMGR_WEBCONFIG
+    if (platform_hal_initLed(conf_filepath) != SUCCESS)
+    {
+        CcspTraceError(("%s %d: Cannot get config file. Exiting..\n", __FUNCTION__, __LINE__));
+        goto FAIL;
+    }
+
+    config_file = fopen(conf_filepath, "r");
+#else 
     char filepath[BUFLEN_128] = {0};
 
     if (platform_hal_initLed(filepath) != SUCCESS)
@@ -76,7 +98,8 @@ static void ledmgr_start ()
         goto FAIL;
     }
 
-    FILE * config_file = fopen(filepath, "r");
+    config_file = fopen(filepath, "r");
+#endif
 
     if (config_file == NULL)
     {
@@ -105,6 +128,11 @@ static void ledmgr_start ()
     free (buffer); // buffer can be freed, config file is parsed and program has saved the data
 
     ledmgr_print_data_to_logfile();
+
+#ifdef LEDMGR_WEBCONFIG 
+    web_config_init();
+    CcspTraceInfo(("%s %d: Webconfig initialisation complete\n", __FUNCTION__, __LINE__));
+#endif
 
     if (ledmgr_catch_events() != SUCCESS)
     {
@@ -226,6 +254,15 @@ int main(int argc, char* argv[])
         exit(1);
     }
 
+#ifdef LEDMGR_WEBCONFIG
+    retStatus = LedMgr_Rbus_Init();
+    if(retStatus != ANSC_STATUS_SUCCESS)
+    {
+        CcspTraceError(("%s %d - Rbus Init failed !\n", __FUNCTION__, __LINE__ ));
+        return retStatus;
+    }
+#endif
+
     ledmgr_start();
 
     if ( bRunAsDaemon )
@@ -244,9 +281,7 @@ int main(int argc, char* argv[])
             cmd_dispatch(cmdChar);
         }
     }
-
+    
 #endif
-
     return SUCCESS;
-
 }

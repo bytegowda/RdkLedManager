@@ -22,6 +22,14 @@
 #include "led_manager_global.h"
 #include "ccsp_psm_helper.h"
 
+#ifdef LEDMGR_WEBCONFIG
+#include <cjson/cJSON.h>
+#include <sys/stat.h>
+
+#define COLOURS_DEFINITION_JSON_KEY  "colours_definition"
+#define BUFFER_LENGTH                256
+#endif
+
 #define LED_MODES_JSON_KEY           "led_modes"
 #define LED_MODE_JSON_KEY            "led_mode"
 #define LED_JSON_KEY                 "leds"
@@ -65,7 +73,6 @@ cpe_event_t ledmgr_get_event_from_str (char * event_str)
 
 static led_mode_t * get_mode_data_for_mode_name (const char * mode)
 {
-
     led_mode_t * mode_data_arr = g_mode_data.mode_obj_head;
     int no_of_modes = g_mode_data.no_of_modes;
 
@@ -129,7 +136,6 @@ char * ledmgr_read_config_file(FILE * fp)
     }
 
     fclose(fp);
-
     return buffer;
 }
 
@@ -240,7 +246,6 @@ static led_transition_t * get_transition_list_from_json_obj (struct json_object 
         return NULL;
     }
 
-
     int i = 0;
     const char * event = NULL;
     const char * next_state = NULL;
@@ -339,7 +344,82 @@ static int set_state_to_transition(led_state_t * states, int no_of_states, struc
     return SUCCESS;
 }
 
+#ifdef LEDMGR_WEBCONFIG
+// converts to a single command string from struct/json formatted [char *buffer]
+char *get_command_string(char *buffer, const char *current_mode_name)
+{
+    const cJSON *led_modes = NULL;
+    const cJSON *led_mode = NULL;
+    const cJSON *led_mode_name = NULL;
+    const cJSON *led_mode_command = NULL;
+    char* commandString = NULL;
+
+    if (buffer == NULL)
+    {
+        CcspTraceError(("%s %d: Error finding the contents of the buffer holding the json data.\n", __FUNCTION__, __LINE__));
+        return NULL;
+    }
+    if (current_mode_name == NULL)
+    {
+        CcspTraceError(("%s %d: Error finding the selected led mode name.\n", __FUNCTION__, __LINE__));
+        return NULL;
+    }
+    cJSON *json_obj = cJSON_ParseWithLength(buffer, strlen(buffer));
+    if (json_obj == NULL)
+    {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            CcspTraceError(("%s %d: cJSON parsing Error before: %s\n", __FUNCTION__, __LINE__, error_ptr));
+            return NULL;
+        }
+    }
+    led_modes = cJSON_GetObjectItemCaseSensitive(json_obj, "led_modes");
+    if (led_modes == NULL)
+    {
+        CcspTraceError(("%s %d: Error finding led modes object in JSON.\n", __FUNCTION__, __LINE__));
+        cJSON_Delete(json_obj);
+        return NULL;
+    }
+    //check for match, print matching mode to commandString (unformatted)
+    cJSON_ArrayForEach(led_mode, led_modes)
+    {
+        led_mode_name = cJSON_GetObjectItemCaseSensitive(led_mode, "name");
+
+        if (led_mode_name == NULL)
+        {
+            CcspTraceError(("%s %d: Error finding name in led mode object.\n", __FUNCTION__, __LINE__));
+            cJSON_Delete(json_obj);
+            return NULL;
+        }
+        if (strncmp(led_mode_name->valuestring, current_mode_name, strlen(current_mode_name)) == 0)
+        {
+            led_mode_command = cJSON_GetObjectItemCaseSensitive(led_mode, "command");
+            if (led_mode_command == NULL)
+            {
+                CcspTraceError(("%s %d: Error finding command in led mode object.\n", __FUNCTION__, __LINE__));
+                cJSON_Delete(json_obj);
+                return NULL;
+            }
+            commandString = cJSON_PrintUnformatted(led_mode_command);
+            if(commandString == NULL) {
+                CcspTraceError(("%s %d: Error allocating/printing to commandString\n", __FUNCTION__, __LINE__));
+                cJSON_Delete(json_obj);
+                return NULL;
+            }
+            break;
+        }
+    }
+    cJSON_Delete(json_obj);
+    return commandString;
+}
+#endif
+
+#ifdef LEDMGR_WEBCONFIG
+static int get_led_mode_data_from_json_obj (struct json_object * parsed_json_obj, char* buffer)
+#else
 static int get_led_mode_data_from_json_obj (struct json_object * parsed_json_obj)
+#endif
 {
     if (parsed_json_obj == NULL)
     {
@@ -372,7 +452,11 @@ static int get_led_mode_data_from_json_obj (struct json_object * parsed_json_obj
     int i = 0;
     const char * mode_name = NULL;
     const char * name = NULL;
+#ifdef LEDMGR_WEBCONFIG
+    char * cmd_name = NULL;
+#else
     const char * cmd_name = NULL;
+#endif
     struct json_object * mode_json_obj = NULL;
     led_hal_command_t * cmd = NULL;
 
@@ -394,15 +478,17 @@ static int get_led_mode_data_from_json_obj (struct json_object * parsed_json_obj
 
         strncpy(mode_data_arr[i].name, mode_name, strlen(mode_name));
 
-
-        // Set command for Mode
+#ifdef LEDMGR_WEBCONFIG
+        // Set command for Mode but first check the type of json
+        cmd_name = get_command_string(buffer, mode_name); // get command string from new json structure
+#else
         cmd_name = get_string_value_from_json_obj(mode_json_obj, MODE_CMD_JSON_KEY);
+#endif
         if ((cmd_name == NULL) || (strlen(cmd_name) > (OBJ_NAME_LEN -1)))
         {
             CcspTraceError(("%s %d: Invalid CMD Mode for Mode %s.\n", __FUNCTION__, __LINE__, mode_name));
             return FAILURE;
         }
-
         cmd = malloc (sizeof(led_hal_command_t));
         if (cmd == NULL)
         {
@@ -412,8 +498,10 @@ static int get_led_mode_data_from_json_obj (struct json_object * parsed_json_obj
         memset (cmd, 0, sizeof(led_hal_command_t));
         strncpy(cmd->cmd, cmd_name, strlen(cmd_name));
 
+#ifdef LEDMGR_WEBCONFIG
+        free(cmd_name);
+#endif
         mode_data_arr[i].hal_command = cmd;
-
     }
 
     return SUCCESS;
@@ -570,7 +658,11 @@ int ledmgr_parse_config_file (char * buffer)
     }
 
     // create LED_MODE data
+#ifdef LEDMGR_WEBCONFIG
+    if (get_led_mode_data_from_json_obj(parsed_json_obj, buffer) == FAILURE)
+#else
     if (get_led_mode_data_from_json_obj(parsed_json_obj) == FAILURE)
+#endif
     {
         CcspTraceError(("%s %d: Failed to get LED Mode data from config file\n", __FUNCTION__, __LINE__));
         return FAILURE;
@@ -668,7 +760,6 @@ void ledmgr_free_data()
         g_mode_data.mode_obj_head = NULL;
         g_mode_data.no_of_modes = 0;
     }
-
 
     // free led data
     if (led_data_arr != NULL)
