@@ -88,6 +88,14 @@ typedef struct {
    char * event_str;
 } cpe_led_events_t;
 
+#ifdef WAN_STATUS_LED_EVENT
+typedef struct {
+   char  ipv4_event_value[BUFLEN_64];
+   char  ipv6_event_value[BUFLEN_64];
+   char  mapt_event_value[BUFLEN_64];
+   char  wan_event[BUFLEN_64];
+} cpe_wan_led_events_t;
+#endif
 int ledmgr_catch_events ();
 
 #endif /* _LEDMGR_DEFN_H_ */ 

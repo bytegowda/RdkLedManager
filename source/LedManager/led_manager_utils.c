@@ -40,6 +40,23 @@
 #define EVENT_JSON_KEY               "event"
 #define NEXT_STATE_JSON_KEY          "next_state"
 
+#ifdef WAN_STATUS_LED_EVENT
+#define IPV4_STATE                   "ipv4_state"
+#define IPV6_STATE                   "ipv6_state"
+#define MAPT_STATE                   "mapt_state"
+cpe_wan_led_events_t led_wan_events[] =
+{
+{ "down", "down", "down", "rdkb_wan_link_down"},
+{ "down", "up",   "down", "rdkb_ipv6_only"    },
+{ "up",   "down", "down", "rdkb_ipv4_only"    },
+{ "up",   "up",   "down", "rdkb_dualstack"    },
+{ "down", "up",   "up",   "rdkb_mapt"         },
+{ "up",   "up",   "up",   "rdkb_mapt"         }
+};
+
+#define MAX_WAN_EVENTS  sizeof(led_wan_events)/sizeof(led_wan_events[0])
+#endif
+
 extern char g_Subsystem[32];
 extern ANSC_HANDLE bus_handle;
 led_data_t g_led_data;
@@ -70,7 +87,95 @@ cpe_event_t ledmgr_get_event_from_str (char * event_str)
     }
     return i;
 }
+#ifdef WAN_STATUS_LED_EVENT
+static int parse_wan_event(char * event_str, char * wan_event)
+{
+    cpe_wan_led_events_t *led_wan_data;
+    char *tmp_buf;
+    int i;
+    uint32_t length;
+    if((event_str == NULL) || (wan_event == NULL))
+    {
+        CcspTraceError(("%s %d Invalid input",__FUNCTION__,__LINE__));
+        return FAILURE;
+    }
+    length = strlen(event_str);
+    if ((tmp_buf = malloc(length+1)) == NULL)
+    {
+        CcspTraceError(("%s %d memory allocation failed",__FUNCTION__,__LINE__));
+        return FAILURE;
+    }
 
+    led_wan_data = (cpe_wan_led_events_t*) malloc(sizeof(cpe_wan_led_events_t));
+    memset(led_wan_data, 0, sizeof(cpe_wan_led_events_t));
+    memset(tmp_buf, 0, length+1);
+    strncpy(tmp_buf, event_str, length+1);
+
+    char *token = strtok(tmp_buf, ",");
+
+    while (token != NULL) {
+        char *colon = strchr(token, ':');
+
+        if (colon != NULL) {
+            *colon = '\0'; // Null-terminate the string at the colon
+            char *event = token;
+            char *value = colon + 1; // Point to the character after the colon
+
+            if((event != NULL) && (value != NULL))
+            {
+                // Print the parsed event and value for debug
+                CcspTraceError(("%s Event: [%s], Value: [%s]\n", __FUNCTION__, event, value));
+                if(strcmp(event, IPV4_STATE)==0 )
+                {
+                    strncpy(led_wan_data->ipv4_event_value, value, sizeof(led_wan_data->ipv4_event_value)-1);
+                }
+                else if(strcmp(event, IPV6_STATE)==0 )
+                {
+                    strncpy(led_wan_data->ipv6_event_value, value, sizeof(led_wan_data->ipv6_event_value)-1);
+                }
+                else if(strcmp(event, MAPT_STATE)==0 )
+                {
+                    strncpy(led_wan_data->mapt_event_value, value, sizeof(led_wan_data->mapt_event_value)-1);
+                }
+            }
+        }
+
+        // Get the next token
+        token = strtok(NULL, ",");
+    }
+
+    free(tmp_buf);
+    for (i = 0; i < MAX_WAN_EVENTS; i++)
+    {
+        if ((strcmp(led_wan_events[i].ipv4_event_value, led_wan_data->ipv4_event_value) == 0) && 
+            (strcmp(led_wan_events[i].ipv6_event_value, led_wan_data->ipv6_event_value) == 0) &&
+            (strcmp(led_wan_events[i].mapt_event_value, led_wan_data->mapt_event_value) == 0))
+        {
+            strncpy(wan_event, led_wan_events[i].wan_event, BUFLEN_64-1);
+            CcspTraceError(("Final Wan Status Event: %s\n", led_wan_events[i].wan_event));
+	    free(led_wan_data);
+            return SUCCESS;
+        }
+    }
+    free(led_wan_data);
+    return FAILURE;
+}
+
+cpe_event_t ledmgr_get_wan_event_from_str(char * event_str)
+{
+    if (event_str == NULL)
+        return MAX_EVENTS;
+
+    char wan_event[BUFLEN_64] = {0};
+    cpe_event_t event_index = MAX_EVENTS;
+    //parse the string and get the right wan event
+    if(parse_wan_event(event_str, wan_event) == SUCCESS)
+    {
+        event_index = ledmgr_get_event_from_str (wan_event);
+    }
+    return event_index;
+}
+#endif
 static led_mode_t * get_mode_data_for_mode_name (const char * mode)
 {
     led_mode_t * mode_data_arr = g_mode_data.mode_obj_head;

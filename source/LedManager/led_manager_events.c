@@ -33,6 +33,10 @@
 #define LED_SYSEVENT_NAME "led_evt_handler"
 #define LED_SYSEVENT_KEY  "led_event"
 
+#ifdef WAN_STATUS_LED_EVENT
+#define LED_WAN_SYSEVENT_KEY  "rdkb_wan_status"
+#endif
+
 cpe_led_events_t led_events[] = 
 {
 {    ePowerOn,          "power_on"               },
@@ -41,12 +45,19 @@ cpe_led_events_t led_events[] =
 {    eDslTraining,      "rdkb_dsl_training"      },
 {    eWanLinkUp,        "rdkb_wan_link_up"       },
 {    eWanLinkDown,      "rdkb_wan_link_down"     },
+#ifndef WAN_STATUS_LED_EVENT
 {    eIPv4Up,           "rdkb_ipv4_up"           },
 {    eIPv4Down,         "rdkb_ipv4_down"         },
 {    eIPv6Up,           "rdkb_ipv6_up"           },
 {    eIPv6Down,         "rdkb_ipv6_down"         },
 {    eMaptUp,           "rdkb_mapt_up"           },
 {    eMaptDown,         "rdkb_mapt_down"         },
+#else
+{    eIPv4Only,         "rdkb_ipv4_only"         },
+{    eIPv6Only,         "rdkb_ipv6_only"         },
+{    eDualStackUp,      "rdkb_dualstack"         },
+{    eMaptUp,           "rdkb_mapt"              },
+#endif
 {    eFwUpdateStart,    "rdkb_fwupdate_start"    },
 {    eFwUpdateStop,     "rdkb_fwupdate_stop"     },
 {    eFwUpdateComplete, "rdkb_fwupdate_complete" },
@@ -87,7 +98,9 @@ extern led_data_t g_led_data;
 extern led_mode_data_t g_mode_data;
 
 cpe_event_t ledmgr_get_event_from_str (char * event_str);
-
+#ifdef WAN_STATUS_LED_EVENT
+cpe_event_t ledmgr_get_wan_event_from_str (char * event_str);
+#endif
 static int handle_event(cpe_event_t event)
 {
 
@@ -163,6 +176,10 @@ int ledmgr_catch_events()
     async_id_t led_state_asyncid;
     char * sysevent_name = LED_SYSEVENT_NAME;
     char * sysevent_key = LED_SYSEVENT_KEY;
+#ifdef WAN_STATUS_LED_EVENT
+    char * sysevent_wan_key = LED_WAN_SYSEVENT_KEY;
+    async_id_t led_wan_state_asyncid;
+#endif
     bool status = FALSE;
     int retry = 0;
 
@@ -187,7 +204,10 @@ int ledmgr_catch_events()
 
     sysevent_set_options(sysevent_fd, sysevent_token, sysevent_key, TUPLE_FLAG_EVENT);
     sysevent_setnotification(sysevent_fd, sysevent_token, sysevent_key, &led_state_asyncid);
-
+#ifdef WAN_STATUS_LED_EVENT
+    sysevent_set_options(sysevent_fd, sysevent_token, sysevent_wan_key, TUPLE_FLAG_EVENT);
+    sysevent_setnotification(sysevent_fd, sysevent_token, sysevent_wan_key, &led_wan_state_asyncid);
+#endif
     char name[BUFLEN_32] = {0};
     char val[BUFLEN_64] = {0};
     int namelen = 0;
@@ -224,6 +244,23 @@ int ledmgr_catch_events()
                     CcspTraceInfo(("%s %d: failed to handle event\n" ,__FUNCTION__, __LINE__));
                 }
             }
+#ifdef WAN_STATUS_LED_EVENT
+            else if(strcmp(name, sysevent_wan_key) == 0)
+            {
+                CcspTraceInfo(("%s %d: received notification event %s with value = %s\n", __FUNCTION__, __LINE__, name, val));
+                //parse the value and map to right wan event
+                t_event = ledmgr_get_wan_event_from_str (val);
+                if (t_event >= MAX_EVENTS)
+                {
+                    CcspTraceError(("%s %d: unsupported event %s \n", __FUNCTION__, __LINE__, val));
+                    continue;
+                }
+                if (handle_event(t_event) != SUCCESS)
+                {
+                    CcspTraceInfo(("%s %d: failed to handle event\n" ,__FUNCTION__, __LINE__));
+                }
+            }
+#endif
             else
             {
                 CcspTraceError(("%s %d: undefined event %s \n", __FUNCTION__, __LINE__, name));
