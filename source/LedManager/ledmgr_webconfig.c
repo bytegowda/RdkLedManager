@@ -46,6 +46,11 @@ static int bytes_contain_zero(const msgpack_object_bin *bin)
     }
     return 0;
 }
+/*
+ *Adapted from jsonconv.c (https://github.com/msgpack/msgpack-c/) which is
+ *Copyright (C) 2008-2015 FURUHASHI Sadayuki and other contributors
+ *Licensed under the Boost Software License, Version 1.0
+ */
 
 /*
  * Convert msgpack format data to json string.

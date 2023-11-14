@@ -9,3 +9,13 @@ within this component.
 
 Copyright 2014 Cisco Systems, Inc.
 Licensed under the Apache License, Version 2.0
+
+jsonconv.c (https://github.com/msgpack/msgpack-c/) is
+Copyright (C) 2008-2015 FURUHASHI Sadayuki and other contributors
+Licensed under the Boost Software License, Version 1.0
+
+Copyright (c) 2009-2017 Dave Gamble and cJSON contributors
+Licensed under the MIT License
+
+Copyright 2020 RDK Management
+Licensed under the Apache License, Version 2.0
