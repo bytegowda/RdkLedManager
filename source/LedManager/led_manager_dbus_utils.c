@@ -322,7 +322,7 @@ ssp_Mbi_MessageBusEngage(char* component_id, char* config_file, char* path)
         (        component_id,
                  config_file,
                  &bus_handle,
-                 AllocateMemory_Callback,           /* mallocfc, use default */
+                 (CCSP_MESSAGE_BUS_MALLOC)AllocateMemory_Callback,           /* mallocfc, use default */
                  Ansc_FreeMemory_Callback                /* freefc,   use default */
         );
 
