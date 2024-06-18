@@ -129,6 +129,7 @@ eWfoEnabled,
 eWfoDisabled,
 #if defined(FEATURE_RDKB_LED_MANAGER_CAPTIVE_PORTAL)
 eLimitedOperational,
+eFwDownloadStopCaptive,
 #endif
 MAX_EVENTS
 }cpe_event_t;

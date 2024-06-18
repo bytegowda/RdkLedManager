@@ -93,6 +93,7 @@ cpe_led_events_t led_events[] =
 {    eWfoDisabled,       "wfo_disabled"          },
 #if defined(FEATURE_RDKB_LED_MANAGER_CAPTIVE_PORTAL)
 {    eLimitedOperational, "rdkb_limited_operational" },
+{    eFwDownloadStopCaptive, "rdkb_fwdownload_stop_captivemode" },
 #endif
 {    MAX_EVENTS,        ""                       }
 };
