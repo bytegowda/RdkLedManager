@@ -21,6 +21,7 @@
 #include "led_manager_events.h"
 #include "led_manager_global.h"
 #include "ccsp_psm_helper.h"
+#include <syscfg/syscfg.h>
 
 #ifdef LEDMGR_WEBCONFIG
 #include <cjson/cJSON.h>
@@ -44,6 +45,7 @@
 #define IPV4_STATE                   "ipv4_state"
 #define IPV6_STATE                   "ipv6_state"
 #define MAPT_STATE                   "mapt_state"
+#define BUFF_SIZE_16                 16
 cpe_wan_led_events_t led_wan_events[] =
 {
 { "down", "down", "down", "rdkb_wan_link_down"},
@@ -888,3 +890,21 @@ void ledmgr_free_data()
     }
 
 }
+#ifdef WAN_STATUS_LED_EVENT
+BOOL check_captive_portal_mode()
+{
+    char redirFlag[BUFF_SIZE_16] = {0};
+    char captivePortalEnable[BUFF_SIZE_16] = {0};
+    // Check RDK variables
+    if (!syscfg_get(NULL, "redirection_flag", redirFlag, sizeof(redirFlag)) && !syscfg_get(NULL, "CaptivePortal_Enable", captivePortalEnable, sizeof(captivePortalEnable)))
+    {
+        if (!strcmp(redirFlag,"true") && !strcmp(captivePortalEnable,"true"))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+#endif
+

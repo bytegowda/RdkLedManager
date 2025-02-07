@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sysevent/sysevent.h>
+#include "led_manager_utils.h"
 
 #define LOCALHOST         "127.0.0.1"
 #define MAX_RETRIES       6
@@ -45,9 +46,9 @@ cpe_led_events_t led_events[] =
 {    eDslTraining,      "rdkb_dsl_training"      },
 {    eWanLinkUp,        "rdkb_wan_link_up"       },
 {    eWanLinkDown,      "rdkb_wan_link_down"     },
+{    eIPv4Up,           "rdkb_ipv4_up"           }, // PAM uses this event for captive portal
+{    eIPv4Down,         "rdkb_ipv4_down"         }, // PAM uses this event for captive portal
 #ifndef WAN_STATUS_LED_EVENT
-{    eIPv4Up,           "rdkb_ipv4_up"           },
-{    eIPv4Down,         "rdkb_ipv4_down"         },
 {    eIPv6Up,           "rdkb_ipv6_up"           },
 {    eIPv6Down,         "rdkb_ipv6_down"         },
 {    eMaptUp,           "rdkb_mapt_up"           },
@@ -91,16 +92,13 @@ cpe_led_events_t led_events[] =
 {    eGfoDisabled,       "gfo_disabled"          },
 {    eWfoEnabled,        "wfo_enabled"           },
 {    eWfoDisabled,       "wfo_disabled"          },
-#if defined(FEATURE_RDKB_LED_MANAGER_CAPTIVE_PORTAL)
 {    eLimitedOperational, "rdkb_limited_operational" },
 {    eFwDownloadStopCaptive, "rdkb_fwdownload_stop_captivemode" },
-#endif
 {    MAX_EVENTS,        ""                       }
 };
 
 extern led_data_t g_led_data;
 extern led_mode_data_t g_mode_data;
-
 cpe_event_t ledmgr_get_event_from_str (char * event_str);
 #ifdef WAN_STATUS_LED_EVENT
 cpe_event_t ledmgr_get_wan_event_from_str (char * event_str);
@@ -249,6 +247,7 @@ int ledmgr_catch_events()
                 }
             }
 #ifdef WAN_STATUS_LED_EVENT
+            // LED manager with wan manager unification support
             else if(strcmp(name, sysevent_wan_key) == 0)
             {
                 CcspTraceInfo(("%s %d: received notification event %s with value = %s\n", __FUNCTION__, __LINE__, name, val));
@@ -258,6 +257,45 @@ int ledmgr_catch_events()
                 {
                     CcspTraceError(("%s %d: unsupported event %s \n", __FUNCTION__, __LINE__, val));
                     continue;
+                }
+                static unsigned int captive_portal_handled = 0;
+                // check if it is wan manager events for IP up 
+                if(!captive_portal_handled)
+                {
+                    BOOL captive_mode_status = FALSE;
+                    captive_mode_status = check_captive_portal_mode();
+                    if(captive_mode_status == FALSE )
+                    {
+                        /* Either captive portal has been done or CPE is in normal boot.
+                        No need to check syscfg again */
+                        captive_portal_handled = 1;
+                        CcspTraceInfo(("%s %d: Captive Portal is disabled or completed\n" ,__FUNCTION__, __LINE__));
+                    }
+                    else
+                    {
+                        if(t_event == eIPv4Only || t_event == eIPv6Only || t_event == eDualStackUp || t_event == eMaptUp)
+                        {
+                            CcspTraceInfo(("%s %d: Captive portal mode is set. Sending rdkb_limited_operational\n\n" ,__FUNCTION__, __LINE__));
+                            cpe_event_t limited_operational_event;
+                            
+                            limited_operational_event = ledmgr_get_event_from_str("rdkb_limited_operational");
+
+                             if (limited_operational_event < MAX_EVENTS)
+                            {
+                                if (handle_event(limited_operational_event) != SUCCESS)
+                                {
+                                    CcspTraceInfo(("%s %d: Failed to handle event rdkb_limited_operational\n\n" ,__FUNCTION__, __LINE__));
+                                    // This platform may not be supporting limited opertional .handle t_event
+                                }
+                                else
+                                {
+                                    CcspTraceInfo(("%s %d: rdkb_limited_operational event handled sucessfully\n\n" ,__FUNCTION__, __LINE__));
+                                    // we are in limited operational state now. wait for sysevent from PAM
+                                    continue;
+                                }
+                            }
+                        } // ip events
+                    } //captive portal enabled
                 }
                 if (handle_event(t_event) != SUCCESS)
                 {

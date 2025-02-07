@@ -80,9 +80,9 @@ eProximity,
 eDslTraining,
 eWanLinkUp,
 eWanLinkDown,
+eIPv4Up, // PAM uses this event for cpative portal LIMITED_OPERATIONAL->OPERATIONAL
+eIPv4Down, // PAM uses this event for cpative portal wifi configuration failure
 #ifndef WAN_STATUS_LED_EVENT
-eIPv4Up,
-eIPv4Down,
 eIPv6Up,
 eIPv6Down,
 eMaptUp,
@@ -118,7 +118,6 @@ eFwDownloadStart,
 eFwDownloadStop,
 eWanEstablish,
 eFactoryReset,
-eTimeOut,
 eExtConnected,
 eExtConnecting,
 eExtFail,
@@ -127,10 +126,8 @@ eGfoEnabled,
 eGfoDisabled,
 eWfoEnabled,
 eWfoDisabled,
-#if defined(FEATURE_RDKB_LED_MANAGER_CAPTIVE_PORTAL)
 eLimitedOperational,
 eFwDownloadStopCaptive,
-#endif
 MAX_EVENTS
 }cpe_event_t;
 
