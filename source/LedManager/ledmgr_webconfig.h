@@ -52,7 +52,6 @@
 #define ON_OFF_JSON_SUBDOC_NAME         "ledStatesConfigOnOff"
 
 #define SSID_DEFAULT_TIMEOUT            90
-#define XB6_DEFAULT_TIMEOUT             15
 
 #define PRINT_JSONSTR_CALL(ret, func, aux_buffer, aux_buffer_size, ...) \
     ret = func(aux_buffer, aux_buffer_size, __VA_ARGS__);               \

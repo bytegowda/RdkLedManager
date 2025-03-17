@@ -29,11 +29,7 @@ extern char conf_filepath[128];
  */
 size_t webconf_ssid_timeout_handler(size_t numOfEntries)
 {
-#if defined(_XB6_PRODUCT_REQ_) && !defined (_XB7_PRODUCT_REQ_)
-    return (numOfEntries * XB6_DEFAULT_TIMEOUT);
-#else
     return (numOfEntries * SSID_DEFAULT_TIMEOUT);
-#endif
 }
 
 static int bytes_contain_zero(const msgpack_object_bin *bin)
